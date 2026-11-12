@@ -37,11 +37,9 @@ import com.pyasotrubley.vegs.ui.components.GlassCard
 import com.pyasotrubley.vegs.ui.components.GlassSwitch
 import com.pyasotrubley.vegs.ui.theme.AccentCyan
 import com.pyasotrubley.vegs.ui.theme.BackgroundDark
-import com.pyasotrubley.vegs.ui.theme.LocalHazeState
 import com.pyasotrubley.vegs.ui.theme.TextPrimary
 import com.pyasotrubley.vegs.ui.theme.TextSecondary
 import com.pyasotrubley.vegs.viewmodel.LauncherViewModel
-import dev.chrisbanes.haze.hazeSource
 
 @Composable
 fun SettingsScreen(
@@ -51,13 +49,11 @@ fun SettingsScreen(
 ) {
     val settings by viewModel.settings.collectAsState()
     val context = LocalContext.current
-    val hazeState = LocalHazeState.current
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(BackgroundDark)
-            .hazeSource(state = hazeState)
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 8.dp)

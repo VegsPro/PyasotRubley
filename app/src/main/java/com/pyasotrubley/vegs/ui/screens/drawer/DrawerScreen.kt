@@ -41,11 +41,9 @@ import com.pyasotrubley.vegs.ui.components.AppIcon
 import com.pyasotrubley.vegs.ui.components.GlassCard
 import com.pyasotrubley.vegs.ui.theme.AccentCyan
 import com.pyasotrubley.vegs.ui.theme.BackgroundDark
-import com.pyasotrubley.vegs.ui.theme.LocalHazeState
 import com.pyasotrubley.vegs.ui.theme.TextPrimary
 import com.pyasotrubley.vegs.ui.theme.TextSecondary
 import com.pyasotrubley.vegs.viewmodel.LauncherViewModel
-import dev.chrisbanes.haze.hazeSource
 
 @Composable
 fun DrawerScreen(
@@ -56,7 +54,6 @@ fun DrawerScreen(
     val apps by viewModel.filteredApps.collectAsState()
     val query by viewModel.searchQuery.collectAsState()
     val settings by viewModel.settings.collectAsState()
-    val hazeState = LocalHazeState.current
 
     AnimatedVisibility(
         visible = isOpen,
@@ -67,7 +64,6 @@ fun DrawerScreen(
             modifier = modifier
                 .fillMaxSize()
                 .background(BackgroundDark.copy(alpha = 0.95f))
-                .hazeSource(state = hazeState)
                 .statusBarsPadding()
         ) {
             Column(

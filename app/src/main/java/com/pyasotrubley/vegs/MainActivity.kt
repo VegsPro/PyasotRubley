@@ -14,8 +14,6 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.pyasotrubley.vegs.ui.navigation.LauncherNavHost
 import com.pyasotrubley.vegs.ui.theme.PyasotRubleyTheme
 import com.pyasotrubley.vegs.viewmodel.LauncherViewModel
-import dev.chrisbanes.haze.HazeState
-import androidx.compose.runtime.remember
 
 class MainActivity : ComponentActivity() {
 
@@ -32,12 +30,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val settings by viewModel.settings.collectAsState()
-            val hazeState = remember { HazeState() }
 
             PyasotRubleyTheme(
                 darkTheme = settings.darkTheme,
-                glassEnabled = settings.glassEnabled,
-                hazeState = hazeState
+                glassEnabled = settings.glassEnabled
             ) {
                 LauncherNavHost(
                     viewModel = viewModel,

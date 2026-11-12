@@ -12,8 +12,8 @@ android {
         applicationId = "com.pyasotrubley.vegs"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -87,8 +87,6 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
     // Glass / Haze
-    implementation("dev.chrisbanes.haze:haze:1.3.1")
-    implementation("dev.chrisbanes.haze:haze-materials:1.3.1")
 
     // Coil for icons if needed
     implementation("io.coil-kt:coil-compose:2.7.0")

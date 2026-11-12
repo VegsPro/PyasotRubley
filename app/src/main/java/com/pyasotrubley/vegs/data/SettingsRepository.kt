@@ -30,7 +30,7 @@ class SettingsRepository(private val context: Context) {
 
     val settings: Flow<LauncherSettings> = context.dataStore.data.map { prefs ->
         LauncherSettings(
-            glassEnabled = prefs[Keys.GLASS] ?: true,
+            glassEnabled = prefs[Keys.GLASS] ?: false,
             homeColumns = prefs[Keys.HOME_COLUMNS] ?: 4,
             iconSizeDp = prefs[Keys.ICON_SIZE] ?: 56,
             showLabels = prefs[Keys.SHOW_LABELS] ?: true,
@@ -50,7 +50,7 @@ class SettingsRepository(private val context: Context) {
     suspend fun update(transform: (LauncherSettings) -> LauncherSettings) {
         context.dataStore.edit { prefs ->
             val current = LauncherSettings(
-                glassEnabled = prefs[Keys.GLASS] ?: true,
+                glassEnabled = prefs[Keys.GLASS] ?: false,
                 homeColumns = prefs[Keys.HOME_COLUMNS] ?: 4,
                 iconSizeDp = prefs[Keys.ICON_SIZE] ?: 56,
                 showLabels = prefs[Keys.SHOW_LABELS] ?: true,

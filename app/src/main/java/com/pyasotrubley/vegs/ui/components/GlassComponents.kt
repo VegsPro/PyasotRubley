@@ -19,22 +19,19 @@ import androidx.compose.ui.unit.dp
 import com.pyasotrubley.vegs.ui.theme.AccentCyan
 import com.pyasotrubley.vegs.ui.theme.BorderGlass
 import com.pyasotrubley.vegs.ui.theme.LocalGlassEnabled
-import com.pyasotrubley.vegs.ui.theme.LocalHazeState
 import com.pyasotrubley.vegs.ui.theme.SurfaceGlass
-import dev.chrisbanes.haze.HazeStyle
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
 
-@OptIn(ExperimentalHazeMaterialsApi::class)
+/**
+ * Lightweight card. Haze is expensive — we use simple translucent background
+ * instead of real-time blur for performance.
+ */
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
-    cornerRadius: Dp = 20.dp,
+    cornerRadius: Dp = 16.dp,
     content: @Composable BoxScope.() -> Unit
 ) {
     val glassEnabled = LocalGlassEnabled.current
-    val hazeState = LocalHazeState.current
     val shape = RoundedCornerShape(cornerRadius)
 
     Box(
@@ -43,18 +40,12 @@ fun GlassCard(
             .then(
                 if (glassEnabled) {
                     Modifier
-                        .hazeEffect(
-                            state = hazeState,
-                            style = HazeMaterials.thin(SurfaceGlass)
-                        ) {
-                            blurRadius = 20.dp
-                        }
                         .background(SurfaceGlass)
                         .border(1.dp, BorderGlass, shape)
                 } else {
                     Modifier
-                        .background(MaterialTheme.colorScheme.surface, shape)
-                        .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), shape)
+                        .background(Color(0xFF1A2332), shape)
+                        .border(1.dp, Color(0x22FFFFFF), shape)
                 }
             )
             .padding(16.dp),
@@ -87,8 +78,7 @@ fun GlassSurface(
     content: @Composable BoxScope.() -> Unit
 ) {
     val glassEnabled = LocalGlassEnabled.current
-    val hazeState = LocalHazeState.current
-    val shape = RoundedCornerShape(16.dp)
+    val shape = RoundedCornerShape(24.dp)
 
     Box(
         modifier = modifier
@@ -97,13 +87,12 @@ fun GlassSurface(
             .then(
                 if (glassEnabled) {
                     Modifier
-                        .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
-                            blurRadius = 16.dp
-                        }
-                        .background(SurfaceGlass.copy(alpha = 0.6f))
+                        .background(SurfaceGlass.copy(alpha = 0.7f))
                         .border(0.5.dp, BorderGlass, shape)
                 } else {
-                    Modifier.background(MaterialTheme.colorScheme.surface.copy(alpha = 0.9f), shape)
+                    Modifier
+                        .background(Color(0xE61A2332), shape)
+                        .border(0.5.dp, Color(0x22FFFFFF), shape)
                 }
             ),
         content = content

@@ -43,11 +43,9 @@ import androidx.compose.ui.unit.sp
 import com.pyasotrubley.vegs.ui.components.AppIcon
 import com.pyasotrubley.vegs.ui.components.GlassSurface
 import com.pyasotrubley.vegs.ui.theme.AccentCyan
-import com.pyasotrubley.vegs.ui.theme.LocalHazeState
 import com.pyasotrubley.vegs.ui.theme.TextPrimary
 import com.pyasotrubley.vegs.ui.theme.TextSecondary
 import com.pyasotrubley.vegs.viewmodel.LauncherViewModel
-import dev.chrisbanes.haze.hazeSource
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -62,7 +60,6 @@ fun HomeScreen(
     val settings by viewModel.settings.collectAsState()
     val homeApps by viewModel.homeApps.collectAsState()
     val dockApps by viewModel.dockApps.collectAsState()
-    val hazeState = LocalHazeState.current
 
     val pagerState = rememberPagerState(pageCount = { 1 })
 
@@ -84,7 +81,6 @@ fun HomeScreen(
                     )
                 )
             )
-            .hazeSource(state = hazeState)
             .statusBarsPadding()
             .pointerInput(Unit) {
                 detectVerticalDragGestures { _, dragAmount ->
