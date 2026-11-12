@@ -21,10 +21,22 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'tools platform-tools platforms;android-35 build-tools;35.0.0'
+      - name: Manual Android SDK setup
+        run: |
+          ANDROID_HOME=$HOME/android-sdk
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          curl -sL -o /tmp/cmdtools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q /tmp/cmdtools.zip -d $ANDROID_HOME/cmdline-tools
+          mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest || true
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+          yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses > /dev/null || true
+          sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+          echo "SDK ready"
+          ls -la $ANDROID_HOME
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -42,7 +54,10 @@ jobs:
           fi
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace --no-daemon
+        run: |
+          export ANDROID_HOME=${ANDROID_HOME:-$HOME/android-sdk}
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
+          ./gradlew assembleDebug --stacktrace --no-daemon
 
       - name: Build Release APK
         env:
@@ -50,6 +65,8 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
+          export ANDROID_HOME=${ANDROID_HOME:-$HOME/android-sdk}
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
           if [ -f keystore/pyasotrubley.keystore ]; then
             ./gradlew assembleRelease --stacktrace --no-daemon
           else
