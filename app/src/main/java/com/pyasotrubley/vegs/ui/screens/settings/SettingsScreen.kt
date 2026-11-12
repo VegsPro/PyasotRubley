@@ -13,14 +13,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,13 +33,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pyasotrubley.vegs.BuildConfig
-import com.pyasotrubley.vegs.ui.components.GlassCard
-import com.pyasotrubley.vegs.ui.components.GlassSwitch
 import com.pyasotrubley.vegs.ui.theme.AccentCyan
 import com.pyasotrubley.vegs.ui.theme.BackgroundDark
 import com.pyasotrubley.vegs.ui.theme.TextPrimary
@@ -56,7 +61,7 @@ fun SettingsScreen(
             .background(BackgroundDark)
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(16.dp)
     ) {
         // Header
         Row(
@@ -64,248 +69,224 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             IconButton(onClick = onBack) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Назад",
-                    tint = TextPrimary
-                )
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад", tint = TextPrimary)
             }
             Text(
                 text = "Настройки лаунчера",
                 color = TextPrimary,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(start = 4.dp)
+                fontFamily = FontFamily.SansSerif
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(Modifier.height(20.dp))
 
-        // === Внешний вид ===
-        SectionTitle("Внешний вид")
-        GlassCard {
-            SettingToggle(
-                title = "Glass-эффект (blur)",
-                subtitle = "Полупрозрачные карточки с размытием",
+        // Внешний вид
+        Section("Внешний вид")
+        SimpleCard {
+            ToggleRow(
+                title = "Glass эффект",
+                subtitle = "Полупрозрачные карточки",
                 checked = settings.glassEnabled,
-                onCheckedChange = { enabled ->
-                    viewModel.updateSettings { it.copy(glassEnabled = enabled) }
-                }
+                onChange = { enabled -> viewModel.updateSettings { it.copy(glassEnabled = enabled) } }
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            SettingToggle(
-                title = "Тёмная тема",
-                subtitle = "Всегда тёмный фон",
+            Spacer(Modifier.height(16.dp))
+            ToggleRow(
+                title = "Темная тема",
+                subtitle = "Всегда темный фон",
                 checked = settings.darkTheme,
-                onCheckedChange = { enabled ->
-                    viewModel.updateSettings { it.copy(darkTheme = enabled) }
-                }
+                onChange = { enabled -> viewModel.updateSettings { it.copy(darkTheme = enabled) } }
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(Modifier.height(20.dp))
 
-        // === Сетка и иконки ===
-        SectionTitle("Сетка и иконки")
-        GlassCard {
-            SettingSlider(
-                title = "Колонок на рабочем столе",
+        // Сетка
+        Section("Сетка и иконки")
+        SimpleCard {
+            SliderRow(
+                title = "Колонок на столе",
                 value = settings.homeColumns.toFloat(),
-                valueRange = 3f..6f,
+                range = 3f..6f,
                 steps = 2,
-                valueLabel = "${settings.homeColumns}",
-                onValueChange = { v ->
-                    viewModel.updateSettings {
-                        it.copy(homeColumns = v.toInt().coerceIn(3, 6))
-                    }
-                }
+                label = "${settings.homeColumns}",
+                onChange = { v -> viewModel.updateSettings { it.copy(homeColumns = v.toInt().coerceIn(3, 6)) } }
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            SettingSlider(
+            Spacer(Modifier.height(18.dp))
+            SliderRow(
                 title = "Размер иконок",
                 value = settings.iconSizeDp.toFloat(),
-                valueRange = 40f..80f,
+                range = 40f..80f,
                 steps = 7,
-                valueLabel = "${settings.iconSizeDp} dp",
-                onValueChange = { v ->
-                    viewModel.updateSettings {
-                        it.copy(iconSizeDp = v.toInt().coerceIn(40, 80))
-                    }
-                }
+                label = "${settings.iconSizeDp} dp",
+                onChange = { v -> viewModel.updateSettings { it.copy(iconSizeDp = v.toInt().coerceIn(40, 80)) } }
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            SettingSlider(
-                title = "Скругление иконок",
+            Spacer(Modifier.height(18.dp))
+            SliderRow(
+                title = "Скругление",
                 value = settings.iconCornerRadius.toFloat(),
-                valueRange = 4f..28f,
+                range = 4f..28f,
                 steps = 5,
-                valueLabel = "${settings.iconCornerRadius} dp",
-                onValueChange = { v ->
-                    viewModel.updateSettings {
-                        it.copy(iconCornerRadius = v.toInt().coerceIn(4, 28))
-                    }
-                }
+                label = "${settings.iconCornerRadius} dp",
+                onChange = { v -> viewModel.updateSettings { it.copy(iconCornerRadius = v.toInt().coerceIn(4, 28)) } }
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            SettingToggle(
+            Spacer(Modifier.height(18.dp))
+            ToggleRow(
                 title = "Показывать названия",
                 subtitle = null,
                 checked = settings.showLabels,
-                onCheckedChange = { enabled ->
-                    viewModel.updateSettings { it.copy(showLabels = enabled) }
-                }
+                onChange = { enabled -> viewModel.updateSettings { it.copy(showLabels = enabled) } }
             )
             if (settings.showLabels) {
-                Spacer(modifier = Modifier.height(12.dp))
-                SettingSlider(
-                    title = "Размер текста названий",
+                Spacer(Modifier.height(12.dp))
+                SliderRow(
+                    title = "Размер текста",
                     value = settings.labelSizeSp.toFloat(),
-                    valueRange = 10f..16f,
+                    range = 10f..16f,
                     steps = 5,
-                    valueLabel = "${settings.labelSizeSp} sp",
-                    onValueChange = { v ->
-                        viewModel.updateSettings {
-                            it.copy(labelSizeSp = v.toInt().coerceIn(10, 16))
-                        }
-                    }
+                    label = "${settings.labelSizeSp} sp",
+                    onChange = { v -> viewModel.updateSettings { it.copy(labelSizeSp = v.toInt().coerceIn(10, 16)) } }
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(Modifier.height(20.dp))
 
-        // === Док ===
-        SectionTitle("Док")
-        GlassCard {
-            SettingSlider(
+        // Док
+        Section("Док")
+        SimpleCard {
+            SliderRow(
                 title = "Приложений в доке",
                 value = settings.dockColumns.toFloat(),
-                valueRange = 3f..6f,
+                range = 3f..6f,
                 steps = 2,
-                valueLabel = "${settings.dockColumns}",
-                onValueChange = { v ->
-                    viewModel.updateSettings {
-                        it.copy(dockColumns = v.toInt().coerceIn(3, 6))
-                    }
-                }
+                label = "${settings.dockColumns}",
+                onChange = { v -> viewModel.updateSettings { it.copy(dockColumns = v.toInt().coerceIn(3, 6)) } }
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(Modifier.height(20.dp))
 
-        // === Поведение ===
-        SectionTitle("Поведение")
-        GlassCard {
-            SettingToggle(
-                title = "Поиск в App Drawer",
+        // Поведение
+        Section("Поведение")
+        SimpleCard {
+            ToggleRow(
+                title = "Поиск в drawer",
                 subtitle = null,
                 checked = settings.searchInDrawer,
-                onCheckedChange = { enabled ->
-                    viewModel.updateSettings { it.copy(searchInDrawer = enabled) }
-                }
+                onChange = { enabled -> viewModel.updateSettings { it.copy(searchInDrawer = enabled) } }
             )
-            Spacer(modifier = Modifier.height(14.dp))
-            SettingToggle(
-                title = "Скрывать системные приложения",
+            Spacer(Modifier.height(14.dp))
+            ToggleRow(
+                title = "Скрывать системные",
                 subtitle = null,
                 checked = settings.hideSystemApps,
-                onCheckedChange = { enabled ->
-                    viewModel.updateSettings { it.copy(hideSystemApps = enabled) }
-                }
+                onChange = { enabled -> viewModel.updateSettings { it.copy(hideSystemApps = enabled) } }
             )
-            Spacer(modifier = Modifier.height(14.dp))
-            SettingToggle(
-                title = "Свайп вверх — открыть drawer",
+            Spacer(Modifier.height(14.dp))
+            ToggleRow(
+                title = "Свайп вверх = drawer",
                 subtitle = null,
                 checked = settings.swipeUpDrawer,
-                onCheckedChange = { enabled ->
-                    viewModel.updateSettings { it.copy(swipeUpDrawer = enabled) }
-                }
+                onChange = { enabled -> viewModel.updateSettings { it.copy(swipeUpDrawer = enabled) } }
             )
-            Spacer(modifier = Modifier.height(14.dp))
-            SettingToggle(
+            Spacer(Modifier.height(14.dp))
+            ToggleRow(
                 title = "Индикатор страниц",
                 subtitle = null,
                 checked = settings.pageIndicator,
-                onCheckedChange = { enabled ->
-                    viewModel.updateSettings { it.copy(pageIndicator = enabled) }
-                }
+                onChange = { enabled -> viewModel.updateSettings { it.copy(pageIndicator = enabled) } }
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(Modifier.height(20.dp))
 
-        // === Система ===
-        SectionTitle("Система")
-        GlassCard {
+        // Система
+        Section("Система")
+        SimpleCard {
             TextButton(
                 onClick = {
-                    val intent = Intent(Settings.ACTION_HOME_SETTINGS)
-                    context.startActivity(intent)
+                    context.startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(
-                    Icons.Default.Home,
-                    contentDescription = null,
-                    tint = AccentCyan,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
+                Icon(Icons.Default.Home, null, tint = AccentCyan)
+                Spacer(Modifier.padding(8.dp))
                 Text(
                     "Установить как лаунчер по умолчанию",
                     color = AccentCyan,
-                    fontSize = 15.sp
+                    fontSize = 15.sp,
+                    fontFamily = FontFamily.SansSerif
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(Modifier.height(20.dp))
 
-        // === О лаунчере ===
-        SectionTitle("О лаунчере")
-        GlassCard {
+        // О лаунчере
+        Section("О лаунчере")
+        SimpleCard {
             Text(
                 "PyasotRubley Launcher",
                 color = TextPrimary,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                fontFamily = FontFamily.SansSerif
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(Modifier.height(4.dp))
             Text(
-                "Версия ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
-                color = TextSecondary,
-                fontSize = 13.sp
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                "Современный лаунчер с полной кастомизацией и Glass UI.\nРазработано для Vegs / MSTRBLOCK.",
+                "Версия ${BuildConfig.VERSION_NAME}",
                 color = TextSecondary,
                 fontSize = 13.sp,
-                lineHeight = 18.sp
+                fontFamily = FontFamily.SansSerif
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "Лаунчер с кастомизацией.\nРазработано для Vegs / MSTRBLOCK.",
+                color = TextSecondary,
+                fontSize = 13.sp,
+                lineHeight = 18.sp,
+                fontFamily = FontFamily.SansSerif
             )
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(Modifier.height(40.dp))
     }
 }
 
 @Composable
-private fun SectionTitle(text: String) {
+private fun Section(title: String) {
     Text(
-        text = text,
+        text = title,
         color = AccentCyan,
         fontSize = 13.sp,
         fontWeight = FontWeight.SemiBold,
+        fontFamily = FontFamily.SansSerif,
         modifier = Modifier.padding(bottom = 8.dp, start = 4.dp)
     )
 }
 
 @Composable
-private fun SettingToggle(
+private fun SimpleCard(content: @Composable () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1A2332)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            content()
+        }
+    }
+}
+
+@Composable
+private fun ToggleRow(
     title: String,
     subtitle: String?,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onChange: (Boolean) -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -317,33 +298,40 @@ private fun SettingToggle(
                 text = title,
                 color = TextPrimary,
                 fontSize = 15.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                fontFamily = FontFamily.SansSerif
             )
             if (subtitle != null) {
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(Modifier.height(2.dp))
                 Text(
                     text = subtitle,
                     color = TextSecondary,
                     fontSize = 12.sp,
-                    lineHeight = 16.sp
+                    fontFamily = FontFamily.SansSerif
                 )
             }
         }
-        GlassSwitch(
+        Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = onChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = AccentCyan,
+                uncheckedThumbColor = Color.White.copy(0.8f),
+                uncheckedTrackColor = Color.White.copy(0.2f)
+            )
         )
     }
 }
 
 @Composable
-private fun SettingSlider(
+private fun SliderRow(
     title: String,
     value: Float,
-    valueRange: ClosedFloatingPointRange<Float>,
+    range: ClosedFloatingPointRange<Float>,
     steps: Int,
-    valueLabel: String,
-    onValueChange: (Float) -> Unit
+    label: String,
+    onChange: (Float) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -356,27 +344,28 @@ private fun SettingSlider(
                 color = TextPrimary,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
+                fontFamily = FontFamily.SansSerif,
                 modifier = Modifier.weight(1f)
             )
             Text(
-                text = valueLabel,
+                text = label,
                 color = AccentCyan,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                fontFamily = FontFamily.SansSerif
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(Modifier.height(8.dp))
         Slider(
             value = value,
-            onValueChange = onValueChange,
-            valueRange = valueRange,
+            onValueChange = onChange,
+            valueRange = range,
             steps = steps,
             colors = SliderDefaults.colors(
                 thumbColor = AccentCyan,
                 activeTrackColor = AccentCyan,
-                inactiveTrackColor = TextSecondary.copy(alpha = 0.3f)
-            ),
-            modifier = Modifier.fillMaxWidth()
+                inactiveTrackColor = TextSecondary.copy(0.3f)
+            )
         )
     }
 }
