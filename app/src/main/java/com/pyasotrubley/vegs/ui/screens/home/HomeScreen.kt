@@ -23,14 +23,20 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +46,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pyasotrubley.vegs.data.AppInfo
 import com.pyasotrubley.vegs.ui.components.AppIcon
 import com.pyasotrubley.vegs.ui.components.GlassSurface
 import com.pyasotrubley.vegs.ui.theme.AccentCyan
@@ -61,7 +68,11 @@ fun HomeScreen(
     val homeApps by viewModel.homeApps.collectAsState()
     val dockApps by viewModel.dockApps.collectAsState()
 
-    val pagerState = rememberPagerState(pageCount = { 1 })
+    // 0 = Zero Screen, 1 = Home
+    val pagerState = rememberPagerState(initialPage = 1, pageCount = { 2 })
+
+    var selectedApp by remember { mutableStateOf<AppInfo?>(null) }
+    var showMenu by remember { mutableStateOf(false) }
 
     val timeFormat = SimpleDateFormat("H:mm", Locale.getDefault())
     val dateFormat = SimpleDateFormat("EEE, d MMM", Locale("ru"))
@@ -74,11 +85,7 @@ fun HomeScreen(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF0B1220),
-                        Color(0xFF0F172A),
-                        Color(0xFF0B1220)
-                    )
+                    listOf(Color(0xFF0B1220), Color(0xFF0F172A), Color(0xFF0B1220))
                 )
             )
             .statusBarsPadding()
@@ -91,62 +98,69 @@ fun HomeScreen(
             }
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Top: Clock + actions (XOS style)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Column {
-                    Text(
-                        text = timeStr,
-                        color = Color.White,
-                        fontSize = 48.sp,
-                        fontWeight = FontWeight.Light,
-                        letterSpacing = (-1).sp
-                    )
-                    Text(
-                        text = dateStr,
-                        color = TextSecondary,
-                        fontSize = 14.sp
-                    )
-                }
-                Row {
-                    IconButton(onClick = { viewModel.openDrawer() }) {
-                        Icon(Icons.Default.Search, contentDescription = "Поиск", tint = TextPrimary)
+            // Top bar only on Home page
+            if (pagerState.currentPage == 1) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column {
+                        Text(
+                            text = timeStr,
+                            color = Color.White,
+                            fontSize = 48.sp,
+                            fontWeight = FontWeight.Light,
+                            letterSpacing = (-1).sp
+                        )
+                        Text(text = dateStr, color = TextSecondary, fontSize = 14.sp)
                     }
-                    IconButton(onClick = onOpenSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Настройки", tint = TextPrimary)
+                    Row {
+                        IconButton(onClick = { viewModel.openDrawer() }) {
+                            Icon(Icons.Default.Search, "Поиск", tint = TextPrimary)
+                        }
+                        IconButton(onClick = onOpenSettings) {
+                            Icon(Icons.Default.Settings, "Настройки", tint = TextPrimary)
+                        }
                     }
                 }
+            } else {
+                Spacer(Modifier.height(12.dp))
             }
 
-            // Home grid
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-            ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(settings.homeColumns),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(homeApps, key = { it.uniqueId }) { app ->
-                        AppIcon(
-                            app = app,
-                            iconSize = settings.iconSizeDp.dp,
-                            showLabel = settings.showLabels,
-                            labelSizeSp = settings.labelSizeSp,
-                            cornerRadius = settings.iconCornerRadius,
-                            onClick = { viewModel.launch(app) },
-                            onLongClick = { }
-                        )
+            ) { page ->
+                when (page) {
+                    0 -> ZeroScreen()
+                    else -> {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(settings.homeColumns),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(homeApps, key = { it.uniqueId }) { app ->
+                                AppIcon(
+                                    app = app,
+                                    iconSize = settings.iconSizeDp.dp,
+                                    showLabel = settings.showLabels,
+                                    labelSizeSp = settings.labelSizeSp,
+                                    cornerRadius = settings.iconCornerRadius,
+                                    onClick = { viewModel.launch(app) },
+                                    onLongClick = {
+                                        selectedApp = app
+                                        showMenu = true
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -159,21 +173,25 @@ fun HomeScreen(
                         .padding(vertical = 6.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 3.dp)
-                            .size(6.dp)
-                            .clip(RoundedCornerShape(50))
-                            .background(AccentCyan)
-                    )
+                    repeat(2) { i ->
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 3.dp)
+                                .size(if (pagerState.currentPage == i) 8.dp else 6.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(
+                                    if (pagerState.currentPage == i) AccentCyan
+                                    else TextSecondary.copy(alpha = 0.4f)
+                                )
+                        )
+                    }
                 }
             }
 
-            // Dock
-            if (dockApps.isNotEmpty()) {
+            // Dock (only on home page)
+            if (pagerState.currentPage == 1 && dockApps.isNotEmpty()) {
                 GlassSurface(
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp, vertical = 10.dp)
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
                     Row(
                         modifier = Modifier
@@ -188,7 +206,11 @@ fun HomeScreen(
                                 iconSize = (settings.iconSizeDp * 0.95f).dp,
                                 showLabel = false,
                                 cornerRadius = settings.iconCornerRadius,
-                                onClick = { viewModel.launch(app) }
+                                onClick = { viewModel.launch(app) },
+                                onLongClick = {
+                                    selectedApp = app
+                                    showMenu = true
+                                }
                             )
                         }
                         IconButton(
@@ -197,7 +219,7 @@ fun HomeScreen(
                         ) {
                             Icon(
                                 Icons.Default.Apps,
-                                contentDescription = "Все приложения",
+                                "Все приложения",
                                 tint = AccentCyan,
                                 modifier = Modifier.size(28.dp)
                             )
@@ -206,7 +228,45 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(12.dp))
+        }
+
+        // Long-press menu
+        if (showMenu && selectedApp != null) {
+            AlertDialog(
+                onDismissRequest = { showMenu = false },
+                title = { Text(selectedApp!!.label, color = TextPrimary) },
+                text = {
+                    Column {
+                        TextButton(onClick = {
+                            viewModel.removeFromHome(selectedApp!!)
+                            showMenu = false
+                        }) {
+                            Icon(Icons.Default.Delete, null, tint = Color(0xFFEF5350))
+                            Spacer(Modifier.padding(8.dp))
+                            Text("Убрать с рабочего стола", color = TextPrimary)
+                        }
+                        TextButton(onClick = {
+                            viewModel.addToDock(selectedApp!!)
+                            showMenu = false
+                        }) {
+                            Text("Добавить в док", color = TextPrimary)
+                        }
+                        TextButton(onClick = {
+                            viewModel.launch(selectedApp!!)
+                            showMenu = false
+                        }) {
+                            Text("Открыть", color = AccentCyan)
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showMenu = false }) {
+                        Text("Закрыть", color = TextSecondary)
+                    }
+                },
+                containerColor = Color(0xFF1A2332)
+            )
         }
     }
 }

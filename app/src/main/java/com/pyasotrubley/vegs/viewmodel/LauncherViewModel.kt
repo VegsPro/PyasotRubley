@@ -101,4 +101,25 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     fun setDockApps(apps: List<AppInfo>) {
         _dockApps.value = apps
     }
+
+    fun removeFromHome(app: AppInfo) {
+        _homeApps.value = _homeApps.value.filter { it.uniqueId != app.uniqueId }
+    }
+
+    fun addToDock(app: AppInfo) {
+        val current = _dockApps.value.toMutableList()
+        if (current.none { it.uniqueId == app.uniqueId }) {
+            current.add(app)
+            _dockApps.value = current.take(6)
+        }
+    }
+
+    fun addToHome(app: AppInfo) {
+        val current = _homeApps.value.toMutableList()
+        if (current.none { it.uniqueId == app.uniqueId }) {
+            current.add(app)
+            _homeApps.value = current
+        }
+    }
+
 }
