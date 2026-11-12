@@ -1,6 +1,7 @@
 package com.pyasotrubley.vegs.ui.components
 
 import android.graphics.drawable.Drawable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,6 +33,7 @@ import com.pyasotrubley.vegs.data.AppInfo
 import com.pyasotrubley.vegs.ui.theme.TextPrimary
 import com.pyasotrubley.vegs.ui.theme.TextSecondary
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppIcon(
     app: AppInfo,
