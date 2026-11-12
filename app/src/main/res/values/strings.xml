@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PyasotRubley</string>
+    <string name="drawer_title">Приложения</string>
+    <string name="search_hint">Поиск приложений…</string>
+    <string name="settings">Настройки</string>
+    <string name="home">Рабочий стол</string>
+    <string name="customize">Кастомизация</string>
+    <string name="glass_effect">Glass-эффект</string>
+    <string name="grid_columns">Колонок на рабочем столе</string>
+    <string name="icon_size">Размер иконок</string>
+    <string name="show_labels">Показывать названия</string>
+    <string name="dock_apps">Приложения в доке</string>
+    <string name="wallpaper">Обои</string>
+    <string name="theme">Тема</string>
+    <string name="about">О лаунчере</string>
+    <string name="version">Версия %1$s</string>
+    <string name="set_as_default">Установить как лаунчер по умолчанию</string>
+    <string name="folders">Папки</string>
+    <string name="gestures">Жесты</string>
+    <string name="search">Поиск</string>
+    <string name="no_apps">Приложения не найдены</string>
+    <string name="long_press_hint">Долгое нажатие — меню</string>
+</resources>
